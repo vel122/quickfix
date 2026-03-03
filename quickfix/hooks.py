@@ -22,15 +22,19 @@ app_license = "mit"
 # ]
 
 # Includes in <head>
+extend_boot_info = "quickfix.boot.extend_boot_info"
 # ------------------
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/quickfix/css/quickfix.css"
-# app_include_js = "/assets/quickfix/js/quickfix.js"
+app_include_js = "/assets/quickfix/js/quickfix.js"
+
+on_session_creation = "quickfix.session.on_session_creation"
+on_logout = "quickfix.session.on_logout"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/quickfix/css/quickfix.css"
-# web_include_js = "/assets/quickfix/js/quickfix.js"
+web_include_js = "/assets/quickfix/js/quickfix.js"
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "quickfix/public/scss/website"
@@ -48,6 +52,35 @@ app_license = "mit"
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
+doctype_js = {
+    "Job Card": "public/js/job_card.js"
+}
+
+doctype_list_js = {
+    "Job Card": "public/js/job_card_list.js"
+}
+
+jinja = {
+    "methods": [
+        "quickfix.jinja_methods.get_shop_name"
+    ],
+    "filters": [
+        "quickfix.jinja_methods.format_job_id"
+    ]
+}
+
+website_route_rules = [
+    {"from_route": "/track-job", "to_route": "track_job"}
+]
+
+
+portal_menu_items = [
+    {
+        "title": "Track My Job",
+        "route": "/track-job",
+        "role": "Guest"
+    }
+]
 # Svg Icons
 # ------------------
 # include app icons in desk
@@ -64,6 +97,17 @@ app_license = "mit"
 # 	"Role": "home_page"
 # }
 
+permission_query_conditions = {
+    "Job Card": "quickfix.api.job_card_permission_query"
+}
+
+has_permission = {
+    "Service Invoice": "quickfix.api.service_invoice_permission"
+}   
+
+override_doctype_class = {
+    "Job Card": "quickfix.overrides.custom_job_card.CustomJobCard"
+}
 # Generators
 # ----------
 
@@ -85,8 +129,8 @@ app_license = "mit"
 # Installation
 # ------------
 
-# before_install = "quickfix.install.before_install"
-# after_install = "quickfix.install.after_install"
+before_install = "quickfix.setup.before_install"
+after_install = "quickfix.setup.after_install"
 
 # Uninstallation
 # ------------
@@ -132,13 +176,13 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"*": {
+		"on_update": "quickfix.audit.log_audit",
+		"on_cancel": "quickfix.audit.log_audit",
+		"on_submit": "quickfix.audit.log_audit"
+	}
+}
 
 # Scheduled Tasks
 # ---------------
@@ -250,3 +294,15 @@ app_license = "mit"
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 
+fixtures = [
+    {
+        "dt": "Device Type"
+    },
+    {
+        "dt": "Role",
+        "filters": [["name", "in", ["QF Service Staff", "QF Technician", "QF Manager"]]]
+    },
+    {
+        "dt": "Custom DocPerm"
+    }
+]

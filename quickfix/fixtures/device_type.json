@@ -1,0 +1,29 @@
+[
+ {
+  "average_repair_hours": 2,
+  "description": "Temper Damage",
+  "device_type": "SmartPhone",
+  "docstatus": 0,
+  "doctype": "Device Type",
+  "modified": "2026-03-02 11:40:56.429826",
+  "name": "SmartPhone"
+ },
+ {
+  "average_repair_hours": 4,
+  "description": "Business Operation",
+  "device_type": "Laptop",
+  "docstatus": 0,
+  "doctype": "Device Type",
+  "modified": "2026-03-02 11:41:35.524677",
+  "name": "Laptop"
+ },
+ {
+  "average_repair_hours": 5,
+  "description": "Android and IOT",
+  "device_type": "Tablet",
+  "docstatus": 0,
+  "doctype": "Device Type",
+  "modified": "2026-03-02 11:42:00.504041",
+  "name": "Tablet"
+ }
+]
