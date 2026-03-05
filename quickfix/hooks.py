@@ -101,6 +101,11 @@ permission_query_conditions = {
     "Job Card": "quickfix.api.job_card_permission_query"
 }
 
+
+override_whitelisted_methods = {
+    "frappe.client.get_count": "quickfix.api.custom_get_count"
+}
+
 has_permission = {
     "Service Invoice": "quickfix.api.service_invoice_permission"
 }   
@@ -130,7 +135,7 @@ override_doctype_class = {
 # ------------
 
 before_install = "quickfix.setup.before_install"
-after_install = "quickfix.setup.after_install"
+after_install = ["quickfix.setup.after_install", "quickfix.monkey_patches.apply_all"]
 
 # Uninstallation
 # ------------
@@ -177,11 +182,14 @@ after_install = "quickfix.setup.after_install"
 # Hook on document methods and events
 
 doc_events = {
-	"*": {
-		"on_update": "quickfix.audit.log_audit",
-		"on_cancel": "quickfix.audit.log_audit",
-		"on_submit": "quickfix.audit.log_audit"
-	}
+    "*": {
+        "on_update": "quickfix.audit.log_audit",
+        "on_cancel": "quickfix.audit.log_audit",
+        "on_submit": "quickfix.audit.log_audit"
+    }
+    # "Job Card": {
+    #     "validate": "quickfix.validate.validate"
+    # }
 }
 
 # Scheduled Tasks
@@ -304,5 +312,20 @@ fixtures = [
     },
     {
         "dt": "Custom DocPerm"
+    },
+    {
+        "dt":"QuickFix Settings"
+    },
+    {
+        "dt":"Workspace",
+        "filters": [["name", "in", ["QuickFix Service Center"]]]
+    },
+    {
+        "dt":"Property Setter",
+        "filters": [["module", "=", "QuickFix"]]
+    },
+    {
+        "dt": "Custom Field",
+        "filters":[["module", "=", "QuickFix"]]
     }
 ]

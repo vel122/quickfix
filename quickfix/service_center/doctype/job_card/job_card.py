@@ -7,7 +7,6 @@ from frappe.model.document import Document
 
 class JobCard(Document):
     def validate(self):
-
         if self.customer_phone:
             if not self.customer_phone.isdigit() or len(self.customer_phone) != 10:
                 frappe.throw("Customer phone number must be 10 digits.")
@@ -31,21 +30,21 @@ class JobCard(Document):
 
         if self.parts_used:
             for part in self.parts_used:
-                available_stock = frappe.db.get_value("Spare Part", part.spare_part, "stock_qty") or 0
+                available_stock = frappe.db.get_value("Spare Part", part.part, "stock_qty") or 0
                 if part.quantity >= available_stock:
-                    frappe.throw(f"Not enough stock for {part.spare_part}. Available: {available_stock}, Required: {part.quantity}")
-                
-    
+                    frappe.throw(f"Not enough stock for {part.part}. Available: {available_stock}, Required: {part.quantity}")
+
+
     def on_cancel(self):
         self.status = "Cancelled"
 
         if self.parts_used:
-            for part in self.parts_used:
-                if not part.spare_part:
+            for p in self.parts_used:
+                if not p.part:
                     continue
-                available_stock = frappe.db.get_value("Spare Part", part.spare_part, "stock_qty") or 0
-                new_stock = available_stock + (part.quantity or 0)
-                frappe.db.set_value("Spare Part", part.spare_part, "stock_qty", new_stock)
+                available_stock = frappe.db.get_value("Spare Part", p.part, "stock_qty") or 0
+                new_stock = available_stock + (p.quantity or 0)
+                frappe.db.set_value("Spare Part", p.part, "stock_qty", new_stock)
 
         invoice = frappe.db.get_value("Service Invoice", {"job_card": self.name}, "name")
         if invoice:
@@ -56,16 +55,14 @@ class JobCard(Document):
     def on_submit(self):
 
         if self.parts_used:
-            for part in self.parts_used:
-                if not part.spare_part:
+            for p in self.parts_used:
+                if not p.part:
                     continue
-                available_stock = frappe.db.get_value("Spare Part", part.spare_part, "stock_qty") or 0
-                new_stock = available_stock - (part.quantity or 0)
-                # ignore_permissions=True is acceptable because this is a system-triggered
-                # stock deduction during document submission, not a user-initiated edit.
-                doc = frappe.get_doc("Spare Part", part.spare_part)
-                doc.stock_qty = new_stock
-                doc.save(ignore_permissions=True)
+                available_stock = frappe.db.get_value("Spare Part", p.part, "stock_qty") or 0
+                new_stock = available_stock - (p.quantity or 0)
+                # # ignore_permissions=True is acceptable because this is a system-triggered
+                # # stock deduction during document submission, not a user-initiated edit.
+                frappe.db.set_value("Spare Part", p.part, "stock_qty", new_stock, ignore_permissions=True)
 
         frappe.get_doc({
             "doctype": "Service Invoice",

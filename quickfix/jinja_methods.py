@@ -5,4 +5,6 @@ def get_shop_name():
     return settings.shop_name
 
 def format_job_id(value):
+     if not value:
+          return ""
      return f"JOB#{value}"
