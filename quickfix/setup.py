@@ -1,6 +1,7 @@
 import frappe
 
 def after_install():
+    frappe.make_property_setter("Job Card", "remarks", "bold", 1, "Check")
     create_default_devicetypes()
     create_default_quickfix_settings()
     frappe.msgprint("QuickFix Service Center setup completed successfully.")
