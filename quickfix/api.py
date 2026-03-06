@@ -115,4 +115,17 @@ def transfer_job(from_tech, to_tech):
     except Exception as e:
         frappe.db.rollback()
         frappe.log_error(frappe.get_traceback(), "Job Transfer Failed")
-        raise
+        raise Exception("Failed to transfer jobs. Please check error logs for details.")
+
+
+@frappe.whitelist()
+def transfer_job_card(doctype,name,value):
+    doc = frappe.get_doc(doctype, name)
+    doc.assigned_technician = value
+    doc.save(ignore_permissions=True)
+
+# @frappe.whitelist()
+# def mark_job_ready(job_card_name):
+#     job_card = frappe.get_doc("Job Card", job_card_name)
+#     job_card.status = "Ready for Delivery"
+#     job_card.save(ignore_permissions=True)

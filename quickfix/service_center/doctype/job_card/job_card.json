@@ -33,7 +33,8 @@
   "payment_status",
   "delivery_date",
   "remarks",
-  "status"
+  "status",
+  "reason_for_rejection"
  ],
  "fields": [
   {
@@ -114,6 +115,7 @@
    "label": "Assignment and Diagnosis"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "assigned_technician",
    "fieldtype": "Link",
    "label": "Assigned Technician",
@@ -141,6 +143,7 @@
    "default": "Normal",
    "fieldname": "priority",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Priority",
    "options": "Normal\nHigh\nUrgent"
   },
@@ -175,6 +178,7 @@
   {
    "fieldname": "final_amount",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Final Amount",
    "read_only": 1
   },
@@ -203,13 +207,20 @@
    "in_list_view": 1,
    "label": "Status",
    "options": "Draft\nPending Diagnosis\nAwaiting Customer Approval\nIn Repair\nReady for Delivery\nDelivered\nCancelled"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "reason_for_rejection",
+   "fieldtype": "Small Text",
+   "label": "Reason for Rejection",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-03-02 13:32:37.920730",
+ "modified": "2026-03-05 17:29:12.621619",
  "modified_by": "Administrator",
  "module": "Service Center",
  "name": "Job Card",

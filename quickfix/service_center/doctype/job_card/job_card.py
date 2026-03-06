@@ -62,7 +62,7 @@ class JobCard(Document):
                 new_stock = available_stock - (p.quantity or 0)
                 # # ignore_permissions=True is acceptable because this is a system-triggered
                 # # stock deduction during document submission, not a user-initiated edit.
-                frappe.db.set_value("Spare Part", p.part, "stock_qty", new_stock, ignore_permissions=True)
+                frappe.db.set_value("Spare Part", p.part, "stock_qty", new_stock)
 
         frappe.get_doc({
             "doctype": "Service Invoice",
