@@ -1,16 +1,11 @@
-frappe.ready(function () {
+frappe.provide("frappe.views")
+setTimeout(() =>{
     if (frappe.boot.quickfix_shop_name) {
-        const shopName = frappe.boot.quickfix_shop_name;
-
-        // Add to navbar
-        const navbar = document.querySelector(".navbar .container");
-        if (navbar) {
-            const el = document.createElement("span");
-            el.style.marginLeft = "20px";
-            el.style.fontWeight = "600";
-            el.innerText = shopName;
-
-            navbar.appendChild(el);
-        }
+        let shop_name = frappe.boot.quickfix_shop_name;
+        $(".navbar-home").append(
+            `<span style="margin-left:10px; font-weight:600;">
+                ${shop_name}
+            </span>`
+        );
     }
-});
+},100);
