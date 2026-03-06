@@ -179,7 +179,24 @@ isolation improve maintainability ,if it used in init.py , then it run on every 
 correct escalation - doc events, override doctype class,override whitelisted methods
 doc events extends logic, override doctype class extend core controller logoc, override whitelist extends API
 
+## H1
+1)frappe.call inside the validate client event (before_save handler)
 
+validate happens before save , frappe.call is asynchronous 
+so it will not work
+
+2)use refresh for async data fecth
+
+## H3 
+tree doctype - is a hierarchical data, for parent child relationships, one parent more child
+tree doctype js - is for customizing tree doc features
+
+## H4
+client script - stored in db not in app code .
+shipped js - stored in app code not in db , easier for production
+
+js only hides the field in UI, but in DB it still exists.
+api call can fetch the data.
 
 
 
