@@ -194,11 +194,24 @@ tree doctype js - is for customizing tree doc features
 ## H4
 client script - stored in db not in app code .
 shipped js - stored in app code not in db , easier for production
-
 js only hides the field in UI, but in DB it still exists.
 api call can fetch the data.
 
+## I1
+fstring in sql is dangerous beacuse it can lead to sql injection attack
+parameterized string will prevent by using %s and %(variable)s
 
+## prepared report 
+prepared report cache the result, if the user changes anything after report is craeted, user see the outdated data
+this is called staleness
+prepared report - for large data
+script report - for small data
+
+## Report builder
+report builder - is appropriate when we need to show the report just by UI, without need of code
+script report - required when we want to do calculations,complex logics etc...
+
+Report builder is not suitable for production because, production needs calculations,logics..so it is not suitable for.
 
 
 

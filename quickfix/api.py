@@ -124,8 +124,24 @@ def transfer_job_card(doctype,name,value):
     doc.assigned_technician = value
     doc.save(ignore_permissions=True)
 
-# @frappe.whitelist()
-# def mark_job_ready(job_card_name):
-#     job_card = frappe.get_doc("Job Card", job_card_name)
-#     job_card.status = "Ready for Delivery"
-#     job_card.save(ignore_permissions=True)
+@frappe.whitelist(allow_guest=True)
+def get_status_chart_data():
+    data = frappe.db.sql("""SELECT status, COUNT(name) as count from `tabJob Card` GROUP BY status""",as_dict=True)
+    labels = []
+    values = []
+
+    for d in data:
+        labels.append(d.status)
+        values.append(d.count)
+
+    return {
+        "labels": labels,
+        "datasets": [
+            {
+                "name": "Jobs",
+                "values": values
+            }
+        ]
+    }
+
+
