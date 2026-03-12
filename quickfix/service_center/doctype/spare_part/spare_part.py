@@ -5,6 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
 
+
 class SparePart(Document):
 	def autoname(self):
 		if self.part_code:

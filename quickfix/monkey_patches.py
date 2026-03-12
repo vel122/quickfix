@@ -1,26 +1,25 @@
-
 import frappe
 
 
 def apply_all():
-    _patch_get_url()
+	_patch_get_url()
 
 
 def _patch_get_url():
+	import frappe.utils as fu
 
-    import frappe.utils as fu
+	if hasattr(fu, "_qf_patched"):
+		return
 
-    if hasattr(fu, "_qf_patched"):
-        return
+	_orig = fu.get_url
 
-    _orig = fu.get_url
+	def _custom_get_url(path=None, full_address=False):
+		url = _orig(path, full_address)
+		prefix = frappe.conf.get("custom_url_prefix", "")
+		if prefix:
+			return prefix + url
 
-    def _custom_get_url(path=None, full_address=False):
-        url = _orig(path, full_address)
-        prefix = frappe.conf.get("custom_url_prefix", "")
-        if prefix:
-            return prefix + url
+		return url
 
-        return url
-    fu.get_url = _custom_get_url
-    fu._qf_patched = True
+	fu.get_url = _custom_get_url
+	fu._qf_patched = True

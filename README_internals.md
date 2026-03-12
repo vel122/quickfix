@@ -1,43 +1,4 @@
-### Quickfix
 
-Electronics Repair Management System
-
-### Installation
-
-You can install this app using the [bench](https://github.com/frappe/bench) CLI:
-
-```bash
-cd $PATH_TO_YOUR_BENCH
-bench get-app $URL_OF_THIS_REPO --branch develop
-bench install-app quickfix
-```
-
-### Contributing
-
-This app uses `pre-commit` for code formatting and linting. Please [install pre-commit](https://pre-commit.com/#installation) and enable it for this repository:
-
-```bash
-cd apps/quickfix
-pre-commit install
-```
-
-Pre-commit is configured to use the following tools for checking and formatting your code:
-
-- ruff
-- eslint
-- prettier
-- pyupgrade
-### CI
-
-This app can use GitHub Actions for CI. The following workflows are configured:
-
-- CI: Installs this app and runs unit tests on every push to `develop` branch.
-- Linters: Runs [Frappe Semgrep Rules](https://github.com/frappe/semgrep-rules) and [pip-audit](https://pypi.org/project/pip-audit/) on every pull request.
-
-
-### License
-
-mit
 
 ### A2
 1)site_config.json - stores site specific config details like db name,pass,type etc...
@@ -387,3 +348,22 @@ check error logs - look for a traceback where it crashed,doctype name,user
 check on Audit logs - what actions performed
 check on RQ job - any failed jobs
 add logger to see
+
+## secrets
+if API key is hardcoded in code , anyone with the code can read the key , if it is deployed in GIT, the code becomes public
+- 
+
+for that frappe provides storing secrets in site config and get through frappe.conf.get
+secrets never shared in common site config because, if we share multiple sites use same key, security risks can occur
+
+we never commit site config to git because, if exposed - database credentials leaked
+
+## private vs public files
+we cannot access a file which was stored in private folder , files/ serves for public files , so we get not found error
+when accessing via private/files/filename.pdf - it checks for permission of the document and user and return
+we use public files - when anyone can access them like js,css,image,product image etc...
+we use private files - where not everyone access- it holds customer invoice, user credentials, etc...
+
+## Bypass Ignore_permissions=True
+
+if we set ignore_permissions=true on @frappe.whitelist(allow_guest=True) then it is publicly accesible without login and anyone can update the record, steal the information , higher security risks
