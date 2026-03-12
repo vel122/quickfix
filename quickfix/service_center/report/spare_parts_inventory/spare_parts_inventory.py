@@ -26,11 +26,13 @@ def execute(filters: dict | None = None):
 	]
 
 	total_stock_qty = sum(row.stock_qty for row in data)
-	data.append({
-		"part_name": _("Total"),
-		"stock_qty": total_stock_qty,
-	})
-    
+	data.append(
+		{
+			"part_name": _("Total"),
+			"stock_qty": total_stock_qty,
+		}
+	)
+
 	for d in data:
 		if d.get("unit_cost") is not None:
 			d["unit_cost"] = f"{d['unit_cost']:.2f}"
@@ -86,12 +88,13 @@ def get_columns() -> list[dict]:
 			"label": _("Margin %"),
 			"fieldname": "margin_percentage",
 			"fieldtype": "Percent",
-		}
+		},
 	]
 
 
 def get_data() -> list[list]:
-	return frappe.db.sql("""
+	return frappe.db.sql(
+		"""
 		SELECT
 			part_name,
 			part_code,
@@ -102,6 +105,6 @@ def get_data() -> list[list]:
 			selling_price,
 			((selling_price - unit_cost) / selling_price * 100) AS margin_percentage
 		FROM `tabSpare Part`
-	""", as_dict=True)
-
-    
+	""",
+		as_dict=True,
+	)

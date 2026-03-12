@@ -22,12 +22,12 @@ app_license = "mit"
 # ]
 
 # Includes in <head>
-extend_boot_info = "quickfix.boot.extend_boot_info"
+extend_bootinfo = "quickfix.boot.extend_boot_info"
 # ------------------
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/quickfix/css/quickfix.css"
-app_include_js = "/assets/quickfix/js/quickfix.js"
+app_include_js = "/assets/quickfix/js/quickfix.bundle.js"
 
 on_session_creation = "quickfix.session.on_session_creation"
 on_logout = "quickfix.session.on_logout"
@@ -52,35 +52,19 @@ web_include_js = "/assets/quickfix/js/web.js"
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
-doctype_js = {
-    "Job Card": "public/js/job_card.js"
-}
+doctype_js = {"Job Card": "public/js/job_card.js"}
 
-doctype_list_js = {
-    "Job Card": "public/js/job_card_list.js"
-}
+doctype_list_js = {"Job Card": "public/js/job_card_list.js"}
 
 jinja = {
-    "methods": [
-        "quickfix.jinja_methods.get_shop_name"
-    ],
-    "filters": [
-        "quickfix.jinja_methods.format_job_id"
-    ]
+	"methods": ["quickfix.jinja_methods.get_shop_name"],
+	"filters": ["quickfix.jinja_methods.format_job_id"],
 }
 
-website_route_rules = [
-    {"from_route": "/track-job", "to_route": "track_job"}
-]
+website_route_rules = [{"from_route": "/track-job", "to_route": "track_job"}]
 
 
-portal_menu_items = [
-    {
-        "title": "Track My Job",
-        "route": "/track-job",
-        "role": "Guest"
-    }
-]
+portal_menu_items = [{"title": "Track My Job", "route": "/track-job", "role": "Guest"}]
 # Svg Icons
 # ------------------
 # include app icons in desk
@@ -97,22 +81,14 @@ portal_menu_items = [
 # 	"Role": "home_page"
 # }
 
-permission_query_conditions = {
-    "Job Card": "quickfix.api.job_card_permission_query"
-}
+permission_query_conditions = {"Job Card": "quickfix.api.job_card_permission_query"}
 
 
-override_whitelisted_methods = {
-    "frappe.client.get_count": "quickfix.api.custom_get_count"
-}
+override_whitelisted_methods = {"frappe.client.get_count": "quickfix.api.custom_get_count"}
 
-has_permission = {
-    "Service Invoice": "quickfix.api.service_invoice_permission"
-}   
+has_permission = {"Service Invoice": "quickfix.api.service_invoice_permission"}
 
-override_doctype_class = {
-    "Job Card": "quickfix.overrides.custom_job_card.CustomJobCard"
-}
+override_doctype_class = {"Job Card": "quickfix.overrides.custom_job_card.CustomJobCard"}
 # Generators
 # ----------
 
@@ -134,7 +110,7 @@ override_doctype_class = {
 # Installation
 # ------------
 
-before_install = "quickfix.setup.before_install"
+before_uninstall = "quickfix.setup.before_install"
 after_install = ["quickfix.setup.after_install", "quickfix.monkey_patches.apply_all"]
 
 # Uninstallation
@@ -182,23 +158,24 @@ after_install = ["quickfix.setup.after_install", "quickfix.monkey_patches.apply_
 # Hook on document methods and events
 
 doc_events = {
-    "*": {
-        "on_update": "quickfix.audit.log_audit",
-        "on_cancel": "quickfix.audit.log_audit",
-        "on_submit": "quickfix.audit.log_audit"
-    }
-    # "Job Card": {
-    #     "validate": "quickfix.validate.validate"
-    # }
+	"*": {
+		"on_update": "quickfix.audit.log_audit",
+		"on_cancel": "quickfix.audit.log_audit",
+		"on_submit": "quickfix.audit.log_audit",
+	},
+	"Job Card": {
+		"on_submit": "quickfix.api.send_webhook_tri"
+		# "on_update":"quickfix.api.clear_cache"
+	},
 }
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"quickfix.tasks.all"
-# 	],
+scheduler_events = {
+	"daily": ["quickfix.api.check_stock"],
+	"cron": {"0 2 1 * *": ["quickfix.api.generate_monthly_revenue_report"]},
+}
 # 	"daily": [
 # 		"quickfix.tasks.daily"
 # 	],
@@ -303,29 +280,11 @@ doc_events = {
 # ignore_translatable_strings_from = []
 
 fixtures = [
-    {
-        "dt": "Device Type"
-    },
-    {
-        "dt": "Role",
-        "filters": [["name", "in", ["QF Service Staff", "QF Technician", "QF Manager"]]]
-    },
-    {
-        "dt": "Custom DocPerm"
-    },
-    {
-        "dt":"QuickFix Settings"
-    },
-    {
-        "dt":"Workspace",
-        "filters": [["name", "in", ["QuickFix Service Center"]]]
-    },
-    {
-        "dt":"Property Setter",
-        "filters": [["module", "=", "QuickFix"]]
-    },
-    {
-        "dt": "Custom Field",
-        "filters":[["module", "=", "QuickFix"]]
-    }
+	{"dt": "Device Type"},
+	{"dt": "Role", "filters": [["name", "in", ["QF Service Staff", "QF Technician", "QF Manager"]]]},
+	{"dt": "Custom DocPerm"},
+	{"dt": "QuickFix Settings"},
+	{"dt": "Workspace", "filters": [["name", "in", ["QuickFix Service Center"]]]},
+	{"dt": "Property Setter", "filters": [["module", "=", "QuickFix"]]},
+	{"dt": "Custom Field", "filters": [["module", "=", "QuickFix"]]},
 ]

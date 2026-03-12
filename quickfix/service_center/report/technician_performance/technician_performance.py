@@ -2,10 +2,9 @@
 # For license information, please see license.txt
 
 from warnings import filters
+
 import frappe
 from frappe import _
-
-
 
 
 def execute(filters: dict | None = None):
@@ -19,30 +18,28 @@ def execute(filters: dict | None = None):
 	report_summary = [
 		{"label": _("Total Jobs"), "value": total_jobs},
 		{"label": _("Total Revenue"), "value": total_revenue, "currency": "currency"},
-		{"label": _("Best Technician"), "value": best_technician["technician"] if best_technician["total_jobs"] > 0 else _("N/A")},
+		{
+			"label": _("Best Technician"),
+			"value": best_technician["technician"] if best_technician["total_jobs"] > 0 else _("N/A"),
+		},
 	]
 
-	chart= {
+	chart = {
 		"data": {
 			"labels": [d["technician"] for d in data],
 			"datasets": [
-				{
-					"name": _("Total Jobs"),
-					"values": [d["total_jobs"] for d in data]
-				},
-				{
-					"name": _("Completed Jobs"),
-					"values": [d["completed"] for d in data]
-				}
-			]
+				{"name": _("Total Jobs"), "values": [d["total_jobs"] for d in data]},
+				{"name": _("Completed Jobs"), "values": [d["completed"] for d in data]},
+			],
 		},
 		"type": "bar",
 		"height": 300,
 	}
 	return columns, data, None, chart, report_summary
 
+
 def get_columns(filters: dict | None = None):
-	cols =  [
+	cols = [
 		{
 			"label": _("Technician"),
 			"fieldname": "technician",
@@ -73,24 +70,26 @@ def get_columns(filters: dict | None = None):
 			"label": _("Completion Rate (%)"),
 			"fieldname": "completion_rate",
 			"fieldtype": "percent",
-		}
+		},
 	]
 
 	for dt in frappe.get_all("Device Type", fields=["name"]):
-		cols.append({
-			"label": dt.name,
-			"fieldname": dt.name.lower().replace(" ", "_"),
-			"fieldtype": "Int",
-			"width": 100
-		})
+		cols.append(
+			{
+				"label": dt.name,
+				"fieldname": dt.name.lower().replace(" ", "_"),
+				"fieldtype": "Int",
+				"width": 100,
+			}
+		)
 	return cols
-	
+
 
 def get_data(filters: dict | None = None):
 	job_card = frappe.get_list(
 		"Job Card",
 		fields=["assigned_technician", "status", "creation", "final_amount", "device_type", "modified"],
-		filters={"creation": ["between", [filters["from_date"], filters["to_date"]]]}
+		filters={"creation": ["between", [filters["from_date"], filters["to_date"]]]},
 	)
 	technician_data = {}
 	for job in job_card:
@@ -103,7 +102,7 @@ def get_data(filters: dict | None = None):
 				"turnaround": [],
 				"revenue": 0,
 			}
-		
+
 		technician_data[tech]["total_jobs"] += 1
 		if job.status == "Ready for Delivery":
 			technician_data[tech]["completed"] += 1
@@ -135,12 +134,11 @@ def get_data(filters: dict | None = None):
 
 @frappe.whitelist()
 def generate_prepared_report(filters=None):
+	frappe.enqueue(
+		method="quickfix.service_center.report.technician_performance.technician_performance.execute",
+		queue="long",
+		timeout=600,
+		filters=filters,
+	)
 
-    frappe.enqueue(
-        method="quickfix.service_center.report.technician_performance.technician_performance.execute",
-        queue="long",
-        timeout=600,
-        filters=filters
-    )
-
-    return "Technician Performance report started in background"
+	return "Technician Performance report started in background"
