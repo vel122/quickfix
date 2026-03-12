@@ -9,23 +9,23 @@
  "filters": [
   {
    "fieldname": "device_type",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "Device Type",
    "mandatory": 0,
-   "options": "",
+   "options": "Device Type",
    "wildcard_filter": 0
   }
  ],
  "idx": 0,
  "is_standard": "Yes",
  "letter_head": null,
- "modified": "2026-03-06 11:44:00.319255",
+ "modified": "2026-03-10 11:26:38.193321",
  "modified_by": "Administrator",
  "module": "Service Center",
  "name": "Open Job Cards",
  "owner": "Administrator",
  "prepared_report": 0,
- "query": "SELECT\n    name,\n    customer_name,\n    device_type,\n    status,\n    assigned_technician,\n    estimated_cost,\n    creation\nFROM `tabJob Card`\nWHERE status NOT IN ('Delivered','Cancelled')\nAND device_type = IFNULL(%(device_type)s, device_type)\nORDER BY creation DESC",
+ "query": "SELECT\n    name,\n    customer_name,\n    device_type,\n    status,\n    assigned_technician,\n    estimated_cost,\n    creation\nFROM `tabJob Card`\nWHERE status NOT IN ('Delivered','Cancelled')\nAND (%(device_type)s IS NULL OR %(device_type)s=''OR device_type=%(device_type)s)\nORDER BY creation DESC",
  "ref_doctype": "Job Card",
  "report_name": "Open Job Cards",
  "report_type": "Query Report",

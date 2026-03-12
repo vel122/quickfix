@@ -22,12 +22,12 @@ app_license = "mit"
 # ]
 
 # Includes in <head>
-extend_boot_info = "quickfix.boot.extend_boot_info"
+extend_bootinfo = "quickfix.boot.extend_boot_info"
 # ------------------
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/quickfix/css/quickfix.css"
-app_include_js = "/assets/quickfix/js/quickfix.js"
+app_include_js = "/assets/quickfix/js/quickfix.bundle.js"
 
 on_session_creation = "quickfix.session.on_session_creation"
 on_logout = "quickfix.session.on_logout"
@@ -134,7 +134,7 @@ override_doctype_class = {
 # Installation
 # ------------
 
-before_install = "quickfix.setup.before_install"
+before_uninstall = "quickfix.setup.before_install"
 after_install = ["quickfix.setup.after_install", "quickfix.monkey_patches.apply_all"]
 
 # Uninstallation
@@ -186,19 +186,26 @@ doc_events = {
         "on_update": "quickfix.audit.log_audit",
         "on_cancel": "quickfix.audit.log_audit",
         "on_submit": "quickfix.audit.log_audit"
+    },
+    "Job Card": {
+        "on_submit": "quickfix.api.send_webhook_tri"
+        # "on_update":"quickfix.api.clear_cache"
     }
-    # "Job Card": {
-    #     "validate": "quickfix.validate.validate"
-    # }
 }
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"quickfix.tasks.all"
-# 	],
+scheduler_events = {
+	"daily": [
+		"quickfix.api.check_stock"
+	],
+    "cron":{
+        "0 2 1 * *":[
+           "quickfix.api.generate_monthly_revenue_report"
+    ]
+    }
+}
 # 	"daily": [
 # 		"quickfix.tasks.daily"
 # 	],

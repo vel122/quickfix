@@ -213,7 +213,177 @@ script report - required when we want to do calculations,complex logics etc...
 
 Report builder is not suitable for production because, production needs calculations,logics..so it is not suitable for.
 
+## print language
+print language is based on user language in settings or print settings
+__("text") - means frappe format of translatebale string
+
+putting frappe.get_all inside jinja directly - whenever template renders db query hits and make it slow
+
+before_print in controller is better because , it compute values before rendered
+
+## J2
+raw printing - print commands directly 
+HTML to pdf - styled with html code and css
+
+format_value - applies correct  symbols
+without it , value print as raw numbers
+
+## Queue names
+short- for fast jobs
+default - for medium level running jobs
+long - for long tasks like report etc...
+
+frappe retry failed background jobs by default 3 times
+
+## K2
+disable scheduler for specific site using bench --site sitename disable-scheduler
+it prevents from running background jobs,scheduled events
+
+when the worker was down , the queued scheduled jobs will run, when it cames back
+
+## Bulk Insert 
+In [1]: import time
+   ...: import quickfix.api
+   ...: 
+   ...: start = time.time()
+   ...: quickfix.api.small_insert()
+   ...: end = time.time()
+   ...: 
+   ...: print("Time taken:", end-start)
+Time taken: 0.560483455657959
+
+In [2]: import time
+   ...: import quickfix.api
+   ...: 
+   ...: start = time.time()
+   ...: quickfix.api.bulk_insert_audit_logs()
+   ...: end = time.time()
+   ...: 
+   ...: print("Time taken:", end-start)
+Time taken: 0.016534805297851562
+
+## Indexing
+frappe.db.sql("SHOW INDEX FROM `tabJob Card`")
+
+Primary
+modified
+creation
+
+- not add index for every field bcz performance will be slow it would be better for fields used in filtering
+also adding index to every field will slow down insert/update operations
 
 
+## CRUD
+DELETE /api/resource/Spare Part/PART-0001 - delete it
+
+reponse:
+{
+    "data": "ok"
+}
+
+PUT - http://quickfix-dev.localhost:8009/api/resource/Spare%20Part/PART-2026-00003
+{
+    "data": {
+        "name": "PART-2026-00003",
+        "owner": "Administrator",
+        "creation": "2026-03-04 08:02:08.299828",
+        "modified": "2026-03-09 17:01:03.161608",
+        "modified_by": "Administrator",
+        "docstatus": 0,
+        "idx": 4,
+        "part_name": "BOLT",
+        "unit_cost": 12.0,
+        "selling_price": 200.0,
+        "stock_qty": 100.0,
+        "reorder_level": 5.0,
+        "is_active": 1,
+        "doctype": "Spare Part"
+    }
+}
+
+POST /api/resource/Spare Part - create a part
+
+response
+{
+    "data": {
+        "name": "PART-2026-00005",
+        "owner": "Administrator",
+        "creation": "2026-03-09 17:02:21.914114",
+        "modified": "2026-03-09 17:02:21.914114",
+        "modified_by": "Administrator",
+        "docstatus": 0,
+        "idx": 0,
+        "part_name": "spring",
+        "unit_cost": 100.0,
+        "selling_price": 200.0,
+        "stock_qty": 100.0,
+        "reorder_level": 5.0,
+        "is_active": 1,
+        "doctype": "Spare Part"
+    }
+}
+
+GET
+
+{
+    "data": {
+        "name": "PART-2026-00005",
+        "owner": "Administrator",
+        "creation": "2026-03-09 17:02:21.914114",
+        "modified": "2026-03-09 17:02:21.914114",
+        "modified_by": "Administrator",
+        "docstatus": 0,
+        "idx": 0,
+        "part_name": "spring",
+        "unit_cost": 100.0,
+        "selling_price": 200.0,
+        "stock_qty": 100.0,
+        "reorder_level": 5.0,
+        "is_active": 1,
+        "doctype": "Spare Part"
+    }
+}
 
 
+session cookie authentication - uses cookie for authentication after user has logged 
+better for normal use, but it requires csrf
+
+token based authentication - uses user API key and token
+
+for browse applications use - seesion
+for server to server - token
+
+## allow_guest = True
+if allow_guest=true, then anynumber of request can send and attacker might steal the information if sensistive information is provided
+attacker can send too many requests and overload the server and attack
+so safely use, rate limiting
+
+
+## hmac.compare digest()
+we use hmac.compare_digest() beacuse it takes same amount of time for comparison 
+unless == ,compares by string and calculate time to show mismatch
+
+
+## deduplication
+if payemnt send twice, we  had register deduplication check if db,exists: it will prevent from running twice
+
+## server script
+python block os,sys,socket in sandbox
+3 things we cannot do - run shell commands,import libraries,accessing file
+quick customizations and small logic server script are acceptable
+
+inisit on app code when it requires complex logics and integrations
+risk - no version control, anyone can edit
+
+## caching
+bootinfo - stores user session information,permissions,metadata,etc...
+
+## debugging UI
+to  clear the asset cache we use bench clear-cache and bench build will compile the frontend js,css and rebuild the UI
+to update doctype metadata - use bench migrate
+
+## production debugging pattern
+check error logs - look for a traceback where it crashed,doctype name,user
+check on Audit logs - what actions performed
+check on RQ job - any failed jobs
+add logger to see

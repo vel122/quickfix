@@ -8,18 +8,26 @@ frappe.ui.form.on("Job Card", {
                 }
             };
         });
-    },
-    onload(frm) {
         frappe.realtime.on("job_ready", (data) => {
             if (data.job_card === frm.doc.name) {
                 frappe.show_alert(`Job Card ${data.job_card} is ready!`);
             }
         });
+    },
+    onload(frm) {
+        // frappe.realtime.on("job_ready", (data) => {
+        //     if (data.job_card === frm.doc.name) {
+        //         frappe.show_alert(`Job Card ${data.job_card} is ready!`);
+        //     }
+        // });
 
         frappe.call({
             method: "frappe.client.get_count",
             args: {
                 doctype: "Job Card",
+            },
+            callback:function(r){
+                frappe.msgprint("Total Jobs:"+ r.message)
             }
         });
     },
@@ -32,7 +40,7 @@ frappe.ui.form.on("Job Card", {
             });
         }
 
-
+        frm.dashboard.clear_headline();
         if (frm.doc.status === "Pending Diagnosis") {
             frm.dashboard.add_indicator("Pending Diagnosis", "orange");
 
@@ -43,7 +51,7 @@ frappe.ui.form.on("Job Card", {
             frm.dashboard.add_indicator("Ready for Delivery", "green");
 
         } else if (frm.doc.status === "Delivered") {
-            frm.dashboard.add_indicator("Delivered", "gray");
+            frm.dashboard.add_indicator("Delivered", "yellow");
 
         } else if (frm.doc.status === "Cancelled") {
             frm.dashboard.add_indicator("Cancelled", "red");
@@ -54,7 +62,7 @@ frappe.ui.form.on("Job Card", {
 
         if (frappe.boot.quickfix_shop_name) {
             frm.dashboard.set_headline(
-                `Shop: ${frappe.boot.quickfix_shop_name}`
+               __("Shop: {0}", [frappe.boot.quickfix_shop_name])
             );
         }
 
@@ -122,6 +130,7 @@ frappe.ui.form.on("Job Card", {
             });
         }
     },
+
     assigned_technician(frm) {
         if(!frm.doc.assigned_technician) 
             return;
@@ -135,11 +144,19 @@ frappe.ui.form.on("Job Card", {
 });
 
 
-frappe.ui.form.on("Part Usage Entry", {
-    quantity(frm, cdt, cdn) {
-        let row = locals[cdt][cdn];
-        if (row.quantity && row.unit_price) {
-            frappe.model.set_value(cdt, cdn, "total_price", row.quantity * row.unit_price);
-        }
+function update_total(cdt, cdn) {
+    let row = locals[cdt][cdn];
+    let qty = row.quantity || 0;
+    let price = row.unit_price || 0;
+    frappe.model.set_value(cdt, cdn, "total_price", (qty || 0) * (price || 0));
+}
+
+frappe.ui.form.on("Part Usage Entry",{
+
+    part(frm,cdt,cdn){
+        update_total(cdt,cdn);
     },
+    quantity(frm,cdt,cdn){
+        update_total(cdt,cdn);
+    }
 });

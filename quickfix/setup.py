@@ -6,7 +6,7 @@ def after_install():
     create_default_quickfix_settings()
     frappe.msgprint("QuickFix Service Center setup completed successfully.")
 
-def before_install():
+def before_uninstall():
     check_job_card()
 
 def create_default_devicetypes():
