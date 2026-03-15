@@ -367,3 +367,6 @@ we use private files - where not everyone access- it holds customer invoice, use
 ## Bypass Ignore_permissions=True
 
 if we set ignore_permissions=true on @frappe.whitelist(allow_guest=True) then it is publicly accesible without login and anyone can update the record, steal the information , higher security risks
+
+## Guest Risks
+if phone number is not validated , attacker can test thousands of  numbers, possible of ddos attack

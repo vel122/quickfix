@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
+from frappe.utils.pdf import get_pdf
 
 
 class JobCard(Document):
@@ -62,7 +63,9 @@ class JobCard(Document):
 				new_stock = available_stock - (p.quantity or 0)
 				# # ignore_permissions=True is acceptable because this is a system-triggered
 				# # stock deduction during document submission, not a user-initiated edit.
-				frappe.db.set_value("Spare Part", p.part, "stock_qty", new_stock)
+				doc = frappe.get - doc("Spare Part", p.part)
+				doc.stock_qty = new_stock
+				doc.save(ignore_permissions=True)
 
 		frappe.get_doc(
 			{
@@ -80,6 +83,16 @@ class JobCard(Document):
 		frappe.publish_realtime("job_ready", {"job_card": self.name}, user=self.owner)
 		frappe.enqueue(
 			"quickfix.api.send_job_ready_email", job_card_name=self.name, queue="short", timeout=300
+		)
+
+		html = frappe.get_print(self.doctype, self.name, print_format="Job Card Receipt")
+		pdf = get_pdf(html)
+
+		frappe.sendmail(
+			recipients=[self.customer_email],
+			subject=f"Job Card {self.name}",
+			message="Your repair job card is attached.",
+			attachments=[{"fname": f"{self.name}.pdf", "fcontent": pdf}],
 		)
 
 	def on_trash(self):

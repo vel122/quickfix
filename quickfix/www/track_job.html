@@ -1,2 +1,32 @@
-<h1>{{title}}</h1>
-<p>Enter your Job ID to track the status of your repair job.</p>
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+
+<h2>{{ title }}</h2>
+
+<form method="GET">
+    <input type="text" name="phone" placeholder="Enter Phone Number" required>
+    <button type="submit">Track</button>
+</form>
+
+<hr>
+
+{% if message %}
+<p style="color:red">{{ message }}</p>
+{% endif %}
+
+{% if jobs %}
+<h3>Repair Status</h3>
+
+{% for job in jobs %}
+<p>
+<b>Job Card:</b> {{ job.name }} <br>
+<b>Customer:</b> {{ job.customer_name }} <br>
+<b>Status:</b> {{ job.status }}
+</p>
+<hr>
+{% endfor %}
+
+{% endif %}
+
+{% endblock %}

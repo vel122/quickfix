@@ -5,7 +5,6 @@ import json
 # D1
 import frappe
 import requests
-from frappe.query_builder import DocType
 from frappe.utils import add_days, nowdate, today
 
 
@@ -104,14 +103,12 @@ def custom_get_count(doctype, filters=None, debug=False, cache=False):
 
 @frappe.whitelist()
 def get_overdue_jobs():
-	JC = DocType("Job Card")
 	seven = add_days(nowdate(), -7)
-	result = (
-		frappe.qb.from_(JC)
-		.select(JC.name, JC.customer_name, JC.assigned_technician, JC.creation)
-		.where((JC.status.isin(["Pending Diagnosis", "In Repair"])) & (JC.creation < seven))
-		.orderby(JC.creation.asc())
-		.run(as_dict=True)
+	result = frappe.get_all(
+		"Job Card",
+		fields=["name", "customer_name", "assigned_technician", "creation"],
+		filters={"status": ["in", ["Pending Diagnosis", "In Repair"]], "creation": ["<", seven]},
+		order_by="creation asc",
 	)
 	return result
 
@@ -205,7 +202,7 @@ def check_stock():
 				"document_name": l.name,
 				"action": "Low Stock",
 			}
-		).insert(ignore_permissions=True)
+		).insert(ignore_permissions=True)  # system generated
 
 
 def cancel_old_draft_job_cards():
@@ -292,7 +289,7 @@ def send_webhook(job_card_name, retry_count=0):
 				"document_name": webhook_id,
 				"action": json.dumps(payload),
 			}
-		).insert()
+		).insert(ignore_permissions=True)  # system Iniated
 		logger.error("Webhook finished")
 
 	except Exception as e:
@@ -316,9 +313,7 @@ def payment_gateway():
 	payload = frappe.request.data
 	secret = frappe.conf.get("payment_webhook_secret")
 	signature = frappe.get_request_header("X-Signature")
-	print("Signature:", signature)
 	expected = hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()
-	print("Expected:", expected)
 
 	if not hmac.compare_digest(expected, signature or ""):
 		frappe.throw("Invalid Signature", frappe.InvalidSignatureError)
@@ -335,7 +330,7 @@ def payment_gateway():
 
 		frappe.get_doc({"doctype": "Audit Log", "document_name": pay, "action": "payment_received"}).insert(
 			ignore_permissions=True
-		)
+		)  # system Iniated
 	frappe.db.commit()
 	return {"status": "OK"}
 

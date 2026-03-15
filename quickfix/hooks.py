@@ -163,10 +163,7 @@ doc_events = {
 		"on_cancel": "quickfix.audit.log_audit",
 		"on_submit": "quickfix.audit.log_audit",
 	},
-	"Job Card": {
-		"on_submit": "quickfix.api.send_webhook_tri"
-		# "on_update":"quickfix.api.clear_cache"
-	},
+	"Job Card": {"on_submit": "quickfix.api.send_webhook_tri", "on_update": "quickfix.api.clear_cache"},
 }
 
 # Scheduled Tasks
